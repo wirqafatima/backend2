@@ -1,5 +1,6 @@
 import User from "../models/user.model.js"
 import jwt from 'jsonwebtoken'
+import { sendEmail } from "../utils/email.js"
 export const signupController = async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
@@ -18,7 +19,7 @@ export const signupController = async (req, res) => {
 
 
         const user = await User.create({ name, email, password, role });
-
+        await sendEmail({ email });
         return res.status(201).json({ message: "User created successfully", user });
 
     } catch (error) {
