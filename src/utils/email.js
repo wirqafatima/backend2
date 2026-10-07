@@ -2,7 +2,6 @@ import nodemailer from 'nodemailer'
 import 'dotenv/config'
 export const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    // host: "smtp.google.com",
     port: Number(process.env.SMTP_PORT),
     secure: true,
     auth: {
@@ -13,12 +12,12 @@ export const transporter = nodemailer.createTransport({
 
 
 
-export const sendEmail = async ({ email }) => {
+export const sendEmail = async ({ email, otp }) => {
     await transporter.sendMail({
         from: process.env.SMTP_USER,
         to: email,
         subject: "Welcome to testabc",
-        text: "Thanks for joining testabc",
-        html: "<h1> welcome to testabc</h1>"
+        text: `your otp is ${otp}`,
+        html: `Your OTP is ${otp}`
     })
 }

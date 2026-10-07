@@ -16,10 +16,10 @@ export const signupController = async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ message: "User already exist" });
         }
+        const otp = Math.floor(1000 + Math.random() * 9000).toString();
 
-
-        const user = await User.create({ name, email, password, role });
-        await sendEmail({ email });
+        const user = await User.create({ name, email, password, role, otp });
+        await sendEmail({ email, otp });
         return res.status(201).json({ message: "User created successfully", user });
 
     } catch (error) {
@@ -27,7 +27,53 @@ export const signupController = async (req, res) => {
         return res.status(500).json({ message: "Something went wrong" });
     }
 }
+export const verifyOtpController = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
 
+        if (!email || !otp) {
+            return res.status(400).json({
+                message: "All fields are required"
+            })
+        }
+
+        const user = await User.findOne({ email, otp })
+        if (!user) {
+            return res.status(404).json({
+                message: "Invalid email "
+            })
+        }
+        if (user.isVerified) {
+            return res.status(400).json({
+                message: "user is already verified",
+            })
+        }
+
+
+        if (user.otp != otp) {
+            return res.satus(400).json({
+                message: "invalid otp"
+            })
+        }
+        user.isVerified = true;
+        user.otp = undefined
+        await user.save();
+
+
+
+        return res.status(200).json({
+            success: true,
+            message: "OTP verified successfully",
+            User,
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            message: "internal server error",
+            error: error.message,
+        })
+    }
+}
 
 
 
